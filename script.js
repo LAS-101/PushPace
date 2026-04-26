@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     walking: 'pushpace_walking',
     gym:     'pushpace_gym',
     running: 'pushpace_running',
+    profile: 'pushpace_profile',
   };
 
   function getData(key) {
@@ -28,6 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setData(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function getProfile() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.profile)) || null;
+    } catch { return null; }
+  }
+
+  function setProfile(data) {
+    localStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(data));
   }
 
   // ── Seed default data if empty ───────────────
@@ -42,14 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (getData(STORAGE_KEYS.gym).length === 0) {
       setData(STORAGE_KEYS.gym, [
         { date: '2026-02-26', duration: 75, calories: 320, exercises: [
-          { name: 'Bench Press', detail: '3 × 10 @ 60 kg' },
-          { name: 'Squats',      detail: '4 × 8 @ 80 kg' },
-          { name: 'Deadlifts',   detail: '3 × 6 @ 100 kg' },
+          { name: 'Bench Press',    sets: 3, reps: 10, weight: 60 },
+          { name: 'Squats',         sets: 4, reps: 8,  weight: 80 },
+          { name: 'Deadlifts',      sets: 3, reps: 6,  weight: 100 },
         ]},
         { date: '2026-02-23', duration: 60, calories: 280, exercises: [
-          { name: 'Pull-ups',       detail: '3 × 12' },
-          { name: 'Shoulder Press', detail: '3 × 10 @ 40 kg' },
-          { name: 'Bicep Curls',    detail: '3 × 12 @ 15 kg' },
+          { name: 'Pull-ups',       sets: 3, reps: 12, weight: 0 },
+          { name: 'Shoulder Press', sets: 3, reps: 10, weight: 40 },
+          { name: 'Bicep Curls',    sets: 3, reps: 12, weight: 15 },
         ]},
       ]);
     }
@@ -73,28 +84,200 @@ document.addEventListener('DOMContentLoaded', () => {
     return n.toLocaleString('en-US');
   }
 
-  // ── SVG icon templates (matching your existing icons) ──
-  const ICONS = {
-    calendar: `<svg viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="1" x2="4" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="1" x2="9" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
-    clock: `<svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><polyline points="6.5,3.5 6.5,6.5 8.5,8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
-    distance: `<svg viewBox="0 0 13 13" fill="none"><path d="M2 9c1-3 3-5 4.5-5S10 6 11 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
-    steps: `<svg viewBox="0 0 13 13" fill="none"><circle cx="5" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>`,
-    calories: `<svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1C6.5 1 3 5 3 7.5a3.5 3.5 0 007 0C10 5 6.5 1 6.5 1z" stroke="currentColor" stroke-width="1.2"/></svg>`,
-    pace: `<svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><line x1="6.5" y1="4" x2="6.5" y2="6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6.5" y1="6.5" x2="9" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
-    delete: `<svg viewBox="0 0 13 13" fill="none"><line x1="3" y1="3" x2="10" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="3" x2="3" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  // ──────────────────────────────────────────────
+  //  CALORIE ESTIMATION
+  // ──────────────────────────────────────────────
+
+  // MET values for common gym exercises (key: lowercase keyword)
+  const MET_TABLE = {
+    'bench press':      3.5,
+    'bench':            3.5,
+    'squat':            5.0,
+    'squats':           5.0,
+    'deadlift':         6.0,
+    'deadlifts':        6.0,
+    'pull-up':          8.0,
+    'pull-ups':         8.0,
+    'pullup':           8.0,
+    'pullups':          8.0,
+    'shoulder press':   4.0,
+    'overhead press':   4.0,
+    'bicep curl':       3.0,
+    'bicep curls':      3.0,
+    'curl':             3.0,
+    'tricep':           3.0,
+    'row':              4.5,
+    'rows':             4.5,
+    'lat pulldown':     4.0,
+    'leg press':        4.5,
+    'lunge':            4.0,
+    'lunges':           4.0,
+    'plank':            3.0,
+    'crunch':           3.5,
+    'crunches':         3.5,
+    'dip':              5.0,
+    'dips':             5.0,
+    'default':          4.0,  // fallback for unknown exercises
   };
 
-  // ── Modal system ─────────────────────────────
-  function createModal(title, fields, onSubmit) {
-    // Overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
+  function getMET(exerciseName) {
+    const lower = exerciseName.toLowerCase();
+    for (const key in MET_TABLE) {
+      if (lower.includes(key)) return MET_TABLE[key];
+    }
+    return MET_TABLE['default'];
+  }
 
-    // Modal
+  // Gym: average MET across all exercises × weight × duration
+  function estimateGymCalories(exercises, durationMin, weightKg) {
+    if (!weightKg || !durationMin) return 0;
+    let totalMET = 0;
+    const count = exercises.length;
+    if (count === 0) {
+      totalMET = MET_TABLE['default'];
+    } else {
+      exercises.forEach(ex => {
+        totalMET += getMET(ex.name);
+      });
+      totalMET = totalMET / count;
+    }
+    const hours = durationMin / 60;
+    return Math.round(totalMET * weightKg * hours);
+  }
+
+  // Running: distance × weight × 1.036
+  function estimateRunningCalories(distanceKm, weightKg) {
+    if (!weightKg || !distanceKm) return 0;
+    return Math.round(distanceKm * weightKg * 1.036);
+  }
+
+  // Walking: distance × weight × 0.53
+  function estimateWalkingCalories(distanceKm, weightKg) {
+    if (!weightKg || !distanceKm) return 0;
+    return Math.round(distanceKm * weightKg * 0.53);
+  }
+
+  // ── SVG icon templates ───────────────────────
+  const ICONS = {
+    calendar: `<svg viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="1" x2="4" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="1" x2="9" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+    clock:    `<svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><polyline points="6.5,3.5 6.5,6.5 8.5,8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+    distance: `<svg viewBox="0 0 13 13" fill="none"><path d="M2 9c1-3 3-5 4.5-5S10 6 11 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+    steps:    `<svg viewBox="0 0 13 13" fill="none"><circle cx="5" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>`,
+    calories: `<svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1C6.5 1 3 5 3 7.5a3.5 3.5 0 007 0C10 5 6.5 1 6.5 1z" stroke="currentColor" stroke-width="1.2"/></svg>`,
+    pace:     `<svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><line x1="6.5" y1="4" x2="6.5" y2="6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6.5" y1="6.5" x2="9" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+    delete:   `<svg viewBox="0 0 13 13" fill="none"><line x1="3" y1="3" x2="10" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="3" x2="3" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    user:     `<svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  };
+
+  // ──────────────────────────────────────────────
+  //  USER PROFILE MODAL
+  // ──────────────────────────────────────────────
+
+  function showProfileModal(isFirstTime = false) {
+    const existing = document.querySelector('.profile-overlay');
+    if (existing) existing.remove();
+
+    const profile = getProfile();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay profile-overlay active';
+
     const modal = document.createElement('div');
     modal.className = 'modal';
 
-    // Header
+    const title = isFirstTime
+      ? 'Welcome to PushPace 👋'
+      : 'Edit Profile';
+
+    const subtitle = isFirstTime
+      ? 'To calculate your calories accurately, we need a few details about you.'
+      : 'Update your personal details.';
+
+    modal.innerHTML = `
+      <div class="modal-header">
+        <h3>${title}</h3>
+        ${!isFirstTime ? `<button class="modal-close" id="profile-close">${ICONS.delete}</button>` : ''}
+      </div>
+      <p style="color:var(--muted); font-size:0.85rem; margin-bottom:20px;">${subtitle}</p>
+      <form class="modal-form" id="profile-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-weight">Weight (kg)</label>
+            <input type="number" id="field-weight" name="weight" min="30" max="300" step="0.1"
+              placeholder="75" value="${profile?.weight || ''}" required />
+          </div>
+          <div class="form-group">
+            <label for="field-height">Height (cm)</label>
+            <input type="number" id="field-height" name="height" min="100" max="250"
+              placeholder="175" value="${profile?.height || ''}" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-age">Age</label>
+            <input type="number" id="field-age" name="age" min="10" max="100"
+              placeholder="22" value="${profile?.age || ''}" required />
+          </div>
+          <div class="form-group">
+            <label for="field-gender">Gender</label>
+            <select id="field-gender" name="gender" required>
+              <option value="" disabled ${!profile?.gender ? 'selected' : ''}>Select</option>
+              <option value="male"   ${profile?.gender === 'male'   ? 'selected' : ''}>Male</option>
+              <option value="female" ${profile?.gender === 'female' ? 'selected' : ''}>Female</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="modal-submit">Save Profile</button>
+      </form>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    if (!isFirstTime) {
+      document.getElementById('profile-close').addEventListener('click', () => overlay.remove());
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      setProfile({
+        weight: parseFloat(fd.get('weight')),
+        height: parseFloat(fd.get('height')),
+        age:    parseInt(fd.get('age')),
+        gender: fd.get('gender'),
+      });
+      overlay.remove();
+    });
+  }
+
+  // Show profile modal on first visit
+  function checkProfile() {
+    if (!getProfile()) {
+      showProfileModal(true);
+    }
+  }
+
+  // ── Profile button in header ─────────────────
+  function injectProfileButton() {
+    const header = document.querySelector('header');
+    if (!header) return;
+    const btn = document.createElement('button');
+    btn.className = 'profile-btn';
+    btn.innerHTML = `${ICONS.user} Profile`;
+    btn.addEventListener('click', () => showProfileModal(false));
+    header.appendChild(btn);
+  }
+
+  // ── Modal system ─────────────────────────────
+  function createModal(title, fields, onSubmit) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
     const header = document.createElement('div');
     header.className = 'modal-header';
     header.innerHTML = `<h3>${title}</h3>`;
@@ -105,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.addEventListener('click', () => overlay.remove());
     header.appendChild(closeBtn);
 
-    // Form
     const form = document.createElement('form');
     form.className = 'modal-form';
 
@@ -128,10 +310,16 @@ document.addEventListener('DOMContentLoaded', () => {
         input.placeholder = field.placeholder || '';
         if (field.step) input.step = field.step;
         if (field.min !== undefined) input.min = field.min;
+        if (field.readOnly) {
+          input.readOnly = true;
+          input.style.opacity = '0.6';
+          input.style.cursor = 'not-allowed';
+        }
       }
       input.name = field.name;
       input.id = `field-${field.name}`;
       input.required = field.required !== false;
+      if (field.value !== undefined) input.value = field.value;
 
       group.appendChild(label);
       group.appendChild(input);
@@ -158,36 +346,23 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    // Animate in
     requestAnimationFrame(() => overlay.classList.add('active'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
-    // Close on overlay click
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) overlay.remove();
-    });
+    return { overlay, form };
   }
 
   // ── Animated counter ─────────────────────────
   function animateValue(el, start, end, duration = 1000) {
     const isDecimal = String(end).includes('.');
     const startTime = performance.now();
-
     function update(currentTime) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = start + (end - start) * eased;
-
-      if (isDecimal) {
-        el.textContent = current.toFixed(1);
-      } else {
-        el.textContent = formatNumber(Math.round(current));
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      }
+      el.textContent = isDecimal ? current.toFixed(1) : formatNumber(Math.round(current));
+      if (progress < 1) requestAnimationFrame(update);
     }
     requestAnimationFrame(update);
   }
@@ -246,7 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="field-value">${act.calories} kcal</div>
         </div>
       `;
-      // Delete on right-click
       row.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         if (confirm('Delete this walking activity?')) {
@@ -267,24 +441,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.querySelector('.btn-green');
     if (addBtn) {
       addBtn.addEventListener('click', () => {
-        createModal('Add Walk', [
-          { name: 'date',     label: 'Date',          type: 'date',   required: true },
-          { name: 'duration', label: 'Duration (min)', type: 'number', min: 1, placeholder: '45' },
-          { name: 'distance', label: 'Distance (km)',  type: 'number', step: '0.1', min: 0, placeholder: '4.2' },
-          { name: 'steps',    label: 'Steps',          type: 'number', min: 0, placeholder: '5400' },
-          { name: 'calories', label: 'Calories (kcal)',type: 'number', min: 0, placeholder: '210' },
-        ], (data) => {
+        const profile = getProfile();
+        const fields = [
+          { name: 'date',     label: 'Date',           type: 'date',   required: true },
+          { name: 'duration', label: 'Duration (min)',  type: 'number', min: 1,   placeholder: '45' },
+          { name: 'distance', label: 'Distance (km)',   type: 'number', step: '0.1', min: 0, placeholder: '4.2' },
+          { name: 'steps',    label: 'Steps',           type: 'number', min: 0,   placeholder: '5400' },
+        ];
+
+        // If profile exists, calories are auto-calculated (read-only)
+        // If no profile, user enters manually
+        if (profile) {
+          fields.push({
+            name: 'calories', label: 'Calories (kcal) — auto-calculated',
+            type: 'number', readOnly: true, value: '', required: false,
+          });
+        } else {
+          fields.push({
+            name: 'calories', label: 'Calories (kcal)',
+            type: 'number', min: 0, placeholder: '210',
+          });
+        }
+
+        const { form } = createModal('Add Walk', fields, (data) => {
+          const distance = parseFloat(data.distance) || 0;
+          const calories = profile
+            ? estimateWalkingCalories(distance, profile.weight)
+            : parseInt(data.calories) || 0;
+
           const activities = getData(STORAGE_KEYS.walking);
           activities.unshift({
             date:     data.date,
             duration: parseInt(data.duration) || 0,
-            distance: parseFloat(data.distance) || 0,
+            distance,
             steps:    parseInt(data.steps) || 0,
-            calories: parseInt(data.calories) || 0,
+            calories,
           });
           setData(STORAGE_KEYS.walking, activities);
           renderWalking();
         });
+
+        // Live preview of calories as user types distance
+        if (profile) {
+          const distInput = form.querySelector('[name="distance"]');
+          const calInput  = form.querySelector('[name="calories"]');
+          if (distInput && calInput) {
+            distInput.addEventListener('input', () => {
+              const dist = parseFloat(distInput.value) || 0;
+              calInput.value = estimateWalkingCalories(dist, profile.weight);
+            });
+          }
+        }
       });
     }
   }
@@ -313,12 +520,19 @@ document.addEventListener('DOMContentLoaded', () => {
         exercisesHTML = `
           <div class="exercises-label">Exercises:</div>
           <div class="exercises-grid">
-            ${w.exercises.map(ex => `
-              <div class="exercise-card">
-                <div class="exercise-name">${ex.name}</div>
-                <div class="exercise-detail">${ex.detail}</div>
-              </div>
-            `).join('')}
+            ${w.exercises.map(ex => {
+              const weightStr = ex.weight > 0 ? `${ex.weight} kg` : 'Bodyweight';
+              return `
+                <div class="exercise-card">
+                  <div class="exercise-name">${ex.name}</div>
+                  <div class="exercise-detail-row">
+                    <span class="ex-badge ex-sets">${ex.sets} sets</span>
+                    <span class="ex-badge ex-reps">${ex.reps} reps</span>
+                    <span class="ex-badge ex-weight">${weightStr}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         `;
       }
@@ -341,7 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ${exercisesHTML}
       `;
 
-      // Delete on right-click
       card.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         if (confirm('Delete this gym workout?')) {
@@ -363,34 +576,138 @@ document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.querySelector('.btn-orange');
     if (addBtn) {
       addBtn.addEventListener('click', () => {
-        createModal('Add Workout', [
-          { name: 'date',      label: 'Date',           type: 'date',     required: true },
-          { name: 'duration',  label: 'Duration (min)',  type: 'number',   min: 1, placeholder: '60' },
-          { name: 'calories',  label: 'Calories (kcal)', type: 'number',   min: 0, placeholder: '300' },
-          { name: 'exercises', label: 'Exercises (one per line: Name – Detail)', type: 'textarea', placeholder: 'Bench Press – 3 × 10 @ 60 kg\nSquats – 4 × 8 @ 80 kg', required: false },
-        ], (data) => {
-          const exercises = [];
-          if (data.exercises) {
-            data.exercises.split('\n').filter(l => l.trim()).forEach(line => {
-              const parts = line.split('–').map(s => s.trim());
-              if (parts.length < 2) {
-                // Try with dash
-                const parts2 = line.split('-').map(s => s.trim());
-                exercises.push({ name: parts2[0] || line.trim(), detail: parts2.slice(1).join('-').trim() || '' });
-              } else {
-                exercises.push({ name: parts[0], detail: parts.slice(1).join('–').trim() });
-              }
-            });
-          }
+        const profile = getProfile();
+
+        // Build modal manually (custom layout for dynamic exercise rows)
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+
+        const modal = document.createElement('div');
+        modal.className = 'modal modal-gym';
+
+        modal.innerHTML = `
+          <div class="modal-header">
+            <h3>Add Workout</h3>
+            <button class="modal-close" id="gym-modal-close">${ICONS.delete}</button>
+          </div>
+          <form class="modal-form" id="gym-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gym-date">Date</label>
+                <input type="date" id="gym-date" name="date" required />
+              </div>
+              <div class="form-group">
+                <label for="gym-duration">Duration (min)</label>
+                <input type="number" id="gym-duration" name="duration" min="1" placeholder="60" required />
+              </div>
+            </div>
+
+            <div class="exercises-form-section">
+              <div class="exercises-form-header">
+                <span class="exercises-form-title">Exercises</span>
+                <button type="button" class="add-exercise-btn" id="add-exercise-row">+ Add Exercise</button>
+              </div>
+              <div class="exercise-rows-header">
+                <span>Exercise Name</span>
+                <span>Sets</span>
+                <span>Reps</span>
+                <span>Weight (kg)</span>
+                <span></span>
+              </div>
+              <div id="exercise-rows"></div>
+            </div>
+
+            ${profile ? `
+              <div class="form-group">
+                <label>Calories (kcal) — auto-calculated</label>
+                <input type="number" id="gym-calories" name="calories" readonly
+                  style="opacity:0.6; cursor:not-allowed;" placeholder="0" />
+              </div>
+            ` : `
+              <div class="form-group">
+                <label for="gym-calories">Calories (kcal)</label>
+                <input type="number" id="gym-calories" name="calories" min="0" placeholder="300" required />
+              </div>
+            `}
+
+            <button type="submit" class="modal-submit">Save Workout</button>
+          </form>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('active'));
+
+        // Close handlers
+        document.getElementById('gym-modal-close').addEventListener('click', () => overlay.remove());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+        // Exercise row management
+        const rowsContainer = document.getElementById('exercise-rows');
+        const calInput = document.getElementById('gym-calories');
+        const durInput = document.getElementById('gym-duration');
+
+        function getExerciseRows() {
+          return Array.from(rowsContainer.querySelectorAll('.exercise-input-row')).map(row => ({
+            name:   row.querySelector('.ex-name').value.trim(),
+            sets:   parseInt(row.querySelector('.ex-sets-input').value) || 0,
+            reps:   parseInt(row.querySelector('.ex-reps-input').value) || 0,
+            weight: parseFloat(row.querySelector('.ex-weight-input').value) || 0,
+          })).filter(ex => ex.name !== '');
+        }
+
+        function updateCalPreview() {
+          if (!profile) return;
+          const exercises = getExerciseRows();
+          const duration  = parseInt(durInput.value) || 0;
+          calInput.value  = estimateGymCalories(exercises, duration, profile.weight);
+        }
+
+        function addExerciseRow(defaultName = '', defaultSets = '', defaultReps = '', defaultWeight = '') {
+          const row = document.createElement('div');
+          row.className = 'exercise-input-row';
+          row.innerHTML = `
+            <input type="text"   class="ex-name"         placeholder="Bench Press" value="${defaultName}" />
+            <input type="number" class="ex-sets-input"   placeholder="3"  min="1"  value="${defaultSets}" />
+            <input type="number" class="ex-reps-input"   placeholder="10" min="1"  value="${defaultReps}" />
+            <input type="number" class="ex-weight-input" placeholder="60" min="0" step="0.5" value="${defaultWeight}" />
+            <button type="button" class="remove-ex-btn">${ICONS.delete}</button>
+          `;
+
+          row.querySelector('.remove-ex-btn').addEventListener('click', () => {
+            row.remove();
+            updateCalPreview();
+          });
+
+          row.querySelectorAll('input').forEach(inp =>
+            inp.addEventListener('input', updateCalPreview)
+          );
+
+          rowsContainer.appendChild(row);
+          row.querySelector('.ex-name').focus();
+          updateCalPreview();
+        }
+
+        // Start with 1 empty row
+        addExerciseRow();
+
+        document.getElementById('add-exercise-row').addEventListener('click', () => addExerciseRow());
+        durInput.addEventListener('input', updateCalPreview);
+
+        // Form submit
+        document.getElementById('gym-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const exercises = getExerciseRows();
+          const duration  = parseInt(durInput.value) || 0;
+          const calories  = profile
+            ? estimateGymCalories(exercises, duration, profile.weight)
+            : parseInt(calInput.value) || 0;
+          const date = document.getElementById('gym-date').value;
 
           const workouts = getData(STORAGE_KEYS.gym);
-          workouts.unshift({
-            date:      data.date,
-            duration:  parseInt(data.duration) || 0,
-            calories:  parseInt(data.calories) || 0,
-            exercises: exercises,
-          });
+          workouts.unshift({ date, duration, calories, exercises });
           setData(STORAGE_KEYS.gym, workouts);
+          overlay.remove();
           renderGym();
         });
       });
@@ -459,24 +776,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.querySelector('.btn-cyan');
     if (addBtn) {
       addBtn.addEventListener('click', () => {
-        createModal('Add Run', [
-          { name: 'date',     label: 'Date',            type: 'date',   required: true },
-          { name: 'duration', label: 'Duration (min)',   type: 'number', min: 1, placeholder: '35' },
-          { name: 'distance', label: 'Distance (km)',    type: 'number', step: '0.1', min: 0, placeholder: '5.0' },
-          { name: 'pace',     label: 'Pace (min/km)',    type: 'number', step: '0.1', min: 0, placeholder: '6.5' },
-          { name: 'calories', label: 'Calories (kcal)',  type: 'number', min: 0, placeholder: '300' },
-        ], (data) => {
+        const profile = getProfile();
+        const fields = [
+          { name: 'date',     label: 'Date',           type: 'date',   required: true },
+          { name: 'duration', label: 'Duration (min)',  type: 'number', min: 1, placeholder: '35' },
+          { name: 'distance', label: 'Distance (km)',   type: 'number', step: '0.1', min: 0, placeholder: '5.0' },
+          { name: 'pace',     label: 'Pace (min/km)',   type: 'number', step: '0.1', min: 0, placeholder: '6.5' },
+        ];
+
+        if (profile) {
+          fields.push({
+            name: 'calories', label: 'Calories (kcal) — auto-calculated',
+            type: 'number', readOnly: true, value: '', required: false,
+          });
+        } else {
+          fields.push({
+            name: 'calories', label: 'Calories (kcal)',
+            type: 'number', min: 0, placeholder: '300',
+          });
+        }
+
+        const { form } = createModal('Add Run', fields, (data) => {
+          const distance = parseFloat(data.distance) || 0;
+          const calories = profile
+            ? estimateRunningCalories(distance, profile.weight)
+            : parseInt(data.calories) || 0;
+
           const activities = getData(STORAGE_KEYS.running);
           activities.unshift({
             date:     data.date,
             duration: parseInt(data.duration) || 0,
-            distance: parseFloat(data.distance) || 0,
+            distance,
             pace:     parseFloat(data.pace) || 0,
-            calories: parseInt(data.calories) || 0,
+            calories,
           });
           setData(STORAGE_KEYS.running, activities);
           renderRunning();
         });
+
+        // Live preview
+        if (profile) {
+          const distInput = form.querySelector('[name="distance"]');
+          const calInput  = form.querySelector('[name="calories"]');
+          if (distInput && calInput) {
+            distInput.addEventListener('input', () => {
+              const dist = parseFloat(distInput.value) || 0;
+              calInput.value = estimateRunningCalories(dist, profile.weight);
+            });
+          }
+        }
       });
     }
   }
@@ -485,25 +833,15 @@ document.addEventListener('DOMContentLoaded', () => {
   //  DASHBOARD PAGE
   // ──────────────────────────────────────────────
   function initDashboard() {
-    const walking  = getData(STORAGE_KEYS.walking);
-    const gym      = getData(STORAGE_KEYS.gym);
-    const running  = getData(STORAGE_KEYS.running);
+    const walking = getData(STORAGE_KEYS.walking);
+    const gym     = getData(STORAGE_KEYS.gym);
+    const running = getData(STORAGE_KEYS.running);
 
-    // Calculate totals
     const totalWorkouts = walking.length + gym.length + running.length;
+    const totalCalories = [...walking, ...gym, ...running].reduce((s, a) => s + (a.calories || 0), 0);
+    const totalHours    = [...walking, ...gym, ...running].reduce((s, a) => s + (a.duration || 0), 0) / 60;
+    const totalDistance = [...walking, ...running].reduce((s, a) => s + (a.distance || 0), 0);
 
-    const totalCalories = [walking, gym, running]
-      .flat()
-      .reduce((sum, a) => sum + (a.calories || 0), 0);
-
-    const totalHours = [walking, gym, running]
-      .flat()
-      .reduce((sum, a) => sum + (a.duration || 0), 0) / 60;
-
-    const totalDistance = [...walking, ...running]
-      .reduce((sum, a) => sum + (a.distance || 0), 0);
-
-    // Update stat cards
     const statValues = document.querySelectorAll('.stat-card .value');
     if (statValues.length >= 4) {
       animateValue(statValues[0], 0, totalWorkouts, 1200);
@@ -512,7 +850,6 @@ document.addEventListener('DOMContentLoaded', () => {
       animateValue(statValues[3], 0, parseFloat(totalDistance.toFixed(1)), 1200);
     }
 
-    // Update sub labels
     const statSubs = document.querySelectorAll('.stat-card .sub');
     if (statSubs.length >= 4) {
       statSubs[1].textContent = 'kcal total';
@@ -520,7 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
       statSubs[3].textContent = 'km total';
     }
 
-    // Update activity summary cards
     const walkingCard = document.querySelector('.act-card.walking');
     if (walkingCard) {
       const vals = walkingCard.querySelectorAll('.act-row .val');
@@ -554,20 +890,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelectorAll('.nav-tabs a');
   navLinks.forEach(link => {
     link.addEventListener('mouseenter', () => {
-      if (!link.classList.contains('active')) {
-        link.style.color = 'var(--text)';
-      }
+      if (!link.classList.contains('active')) link.style.color = 'var(--text)';
     });
     link.addEventListener('mouseleave', () => {
-      if (!link.classList.contains('active')) {
-        link.style.color = '';
-      }
+      if (!link.classList.contains('active')) link.style.color = '';
     });
   });
 
   // ──────────────────────────────────────────────
   //  INIT
   // ──────────────────────────────────────────────
+  injectProfileButton();
+  checkProfile();
+
   switch (page) {
     case 'dashboard': initDashboard(); break;
     case 'walking':   initWalking();   break;
