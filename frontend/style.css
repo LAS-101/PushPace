@@ -37,6 +37,7 @@ body {
 header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 40px;
     height: 68px;
     border-bottom: 1px solid var(--border);
@@ -56,6 +57,32 @@ header {
 .logo svg {
     width: 28px;
     height: 28px;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--orange);
+    border-radius: 6px;
+    color: var(--orange);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: var(--orange);
+    color: #000;
+}
+
+.btn-logout svg {
+    width: 18px;
+    height: 18px;
 }
 
 nav {

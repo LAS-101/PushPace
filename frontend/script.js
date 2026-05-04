@@ -1,3 +1,26 @@
+// API Base URL (adjust if needed based on your server setup)
+const API_BASE = '/PushPace/api';
+
+// Global logout function
+window.logout = async function() {
+  try {
+    const response = await fetch(`${API_BASE}/auth.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ action: 'logout' })
+    });
+
+    if (response.ok) {
+      window.location.href = 'login.html';
+    }
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
 
   //Detect current page 
@@ -8,8 +31,25 @@ document.addEventListener('DOMContentLoaded', () => {
         : body.classList.contains('page-running') ? 'running'
           : null;
 
-  // API Base URL (adjust if needed based on your server setup)
-  const API_BASE = '/PushPace/api';
+  // Authentication check - DEFINE FIRST
+  async function checkAuthentication() {
+    try {
+      const response = await fetch(`${API_BASE}/auth.php`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (!data.authenticated) {
+        window.location.href = 'login.html';
+      }
+    } catch (error) {
+      console.error('Auth check error:', error);
+      window.location.href = 'login.html';
+    }
+  }
+
+  // Check authentication on page load - CALL AFTER DEFINITION
+  checkAuthentication();
 
   
   //Fetch data from API
@@ -19,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       ...options,
     };
 

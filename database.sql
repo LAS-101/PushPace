@@ -61,7 +61,8 @@ CREATE INDEX idx_user_date ON walking_activities(user_id, date DESC);
 CREATE INDEX idx_gym_user_date ON gym_workouts(user_id, date DESC);
 CREATE INDEX idx_running_user_date ON running_activities(user_id, date DESC);
 INSERT INTO users (username, email, password_hash, weight, height, age, gender)
-VALUES ('testuser', 'test@example.com', NULL, 75, 175, 25, 'male');
+VALUES ('testuser', 'test@example.com', '$2y$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUe', 75, 175, 25, 'male'),
+       ('demo', 'demo@example.com', '$2y$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUe', 70, 180, 30, 'male');
 
 INSERT INTO walking_activities (user_id, date, duration, distance, steps, calories)
 VALUES
