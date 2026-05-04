@@ -91,7 +91,7 @@ function validateGender($gender) {
 }
 
 function getRequestData() {
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' || $_SERVER['REQUEST_METHOD'] === 'DELETE') {
         return $_GET;
     }
     
