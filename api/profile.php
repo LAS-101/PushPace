@@ -1,11 +1,4 @@
 <?php
-/**
- * PushPace Profile API
- * Handles GET (retrieve profile) and POST (update/create profile)
- * 
- * GET  /api/profile.php → Get user profile
- * POST /api/profile.php → Create/Update user profile
- */
 
 require_once __DIR__ . '/config.php';
 
@@ -35,7 +28,6 @@ if ($method === 'GET') {
     $profile = $result->fetch_assoc();
     $stmt->close();
     
-    // Convert numeric strings to proper types
     $profile['weight'] = $profile['weight'] ? (float)$profile['weight'] : null;
     $profile['height'] = $profile['height'] ? (int)$profile['height'] : null;
     $profile['age'] = $profile['age'] ? (int)$profile['age'] : null;

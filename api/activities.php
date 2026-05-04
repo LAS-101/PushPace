@@ -1,14 +1,4 @@
 <?php
-/**
- * PushPace Activities API
- * Handles CRUD operations for all activity types (walking, gym, running)
- * 
- * GET    /api/activities.php?type=walking → Get all walking activities
- * GET    /api/activities.php?type=gym → Get all gym workouts with exercises
- * GET    /api/activities.php?type=running → Get all running activities
- * POST   /api/activities.php → Create new activity
- * DELETE /api/activities.php?type=walking&id=1 → Delete activity
- */
 
 require_once __DIR__ . '/config.php';
 

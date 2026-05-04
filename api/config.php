@@ -1,8 +1,4 @@
 <?php
-/**
- * PushPace Backend Configuration
- * Database connection and utility functions
- */
 
 // Database credentials (for XAMPP on localhost)
 define('DB_HOST', 'localhost');
@@ -27,10 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-/**
- * Get database connection
- * Returns mysqli connection object
- */
 function getDB() {
     static $conn = null;
     
@@ -48,33 +40,20 @@ function getDB() {
     return $conn;
 }
 
-/**
- * Send JSON response
- */
 function sendResponse($data, $statusCode = 200) {
     http_response_code($statusCode);
     echo json_encode($data);
     exit();
 }
 
-/**
- * Send error response
- */
 function sendError($message, $statusCode = 400) {
     sendResponse(['error' => $message], $statusCode);
 }
 
-/**
- * Get the current user ID (for now we use user_id = 1)
- * In production, this would come from session/JWT authentication
- */
 function getCurrentUserId() {
     return 1; // Default user ID for testing
 }
 
-/**
- * Validate required fields in request
- */
 function validateRequired($data, $fields) {
     foreach ($fields as $field) {
         if (!isset($data[$field]) || $data[$field] === '') {
@@ -84,16 +63,10 @@ function validateRequired($data, $fields) {
     return true;
 }
 
-/**
- * Sanitize string input
- */
 function sanitizeString($input) {
     return trim(htmlspecialchars($input, ENT_QUOTES, 'UTF-8'));
 }
 
-/**
- * Validate numeric input
- */
 function validateNumber($value, $min = null, $max = null) {
     if (!is_numeric($value)) {
         return false;
@@ -107,22 +80,16 @@ function validateNumber($value, $min = null, $max = null) {
     return true;
 }
 
-/**
- * Validate date format (YYYY-MM-DD)
- */
+
 function validateDate($date) {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') === $date;
 }
 
-/**
- * Validate gender
- */
 function validateGender($gender) {
     return in_array($gender, ['male', 'female']);
 }
 
-// Get request data (handles both GET and POST)
 function getRequestData() {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         return $_GET;

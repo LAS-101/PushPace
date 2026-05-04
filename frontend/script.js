@@ -11,11 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // API Base URL (adjust if needed based on your server setup)
   const API_BASE = '/PushPace/api';
 
-  // ============ API Helper Functions ============
   
-  /**
-   * Fetch data from API
-   */
+  //Fetch data from API
   async function apiFetch(endpoint, options = {}) {
     const url = `${API_BASE}/${endpoint}`;
     const config = {
@@ -40,9 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Get activities from API
-   */
+  //getactivites
   async function getActivities(type) {
     try {
       return await apiFetch(`activities.php?type=${type}`);
@@ -52,9 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Create new activity
-   */
+  //create new activitiy
   async function createActivity(type, activityData) {
     try {
       const payload = { type, ...activityData };
@@ -69,9 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Delete activity
-   */
+  //delete activity
   async function deleteActivity(type, id) {
     try {
       const response = await apiFetch(`activities.php?type=${type}&id=${id}`, {
@@ -84,9 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Get user profile
-   */
+  
   async function getProfile() {
     try {
       return await apiFetch('profile.php');
@@ -96,9 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Update user profile
-   */
+ 
   async function setProfile(profileData) {
     try {
       const response = await apiFetch('profile.php', {
