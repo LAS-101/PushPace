@@ -1,16 +1,9 @@
 <?php
-// dashboard.php - Tableau de bord
-require_once 'auth.php';
+// dashboard.php - Tableau de bord simplifié
+require_once 'db_config.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-
-// On récupère les statistiques de chaque activité avec des requêtes SELECT
-$reponse_walk = $db->query('SELECT * FROM walking_activities WHERE user_id = ' . $userId);
+// On récupère les statistiques de chaque activité (sans filtre user_id pour simplifier)
+$reponse_walk = $db->query('SELECT * FROM walking_activities');
 $totalWalk = 0;
 $calWalk = 0;
 $distWalk = 0;
@@ -23,7 +16,7 @@ while ($entree = $reponse_walk->fetch()) {
 }
 $reponse_walk->closeCursor();
 
-$reponse_run = $db->query('SELECT * FROM running_activities WHERE user_id = ' . $userId);
+$reponse_run = $db->query('SELECT * FROM running_activities');
 $totalRun = 0;
 $calRun = 0;
 $distRun = 0;
@@ -36,7 +29,7 @@ while ($entree = $reponse_run->fetch()) {
 }
 $reponse_run->closeCursor();
 
-$reponse_gym = $db->query('SELECT * FROM gym_workouts WHERE user_id = ' . $userId);
+$reponse_gym = $db->query('SELECT * FROM gym_workouts');
 $totalGym = 0;
 $calGym = 0;
 $durGym = 0;
@@ -58,7 +51,7 @@ include 'header.php';
 
 <main>
     <h1 class="page-title">Dashboard</h1>
-    <p class="page-sub">Bienvenue, <?php echo $_SESSION['username']; ?> !</p>
+    <p class="page-sub">Statistiques récupérées depuis MySQL</p>
 
     <div class="stats-grid">
         <div class="stat-card">

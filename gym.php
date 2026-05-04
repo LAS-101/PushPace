@@ -1,54 +1,9 @@
 <?php
-// gym.php - Page Musculation
-require_once 'auth.php';
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-
-// Ajout d'une seance (INSERT avec requete preparee)
-if (isset($_POST['btn_add_gym'])) {
-    $requete = $db->prepare('INSERT INTO gym_workouts (user_id, date, duration, calories) VALUES (:user_id, :date, :duration, :calories)');
-    $requete->execute(array(
-        'user_id' => $userId,
-        'date' => $_POST['date'],
-        'duration' => $_POST['duration'],
-        'calories' => $_POST['calories']
-    ));
-
-    // On recupere la derniere seance de cet utilisateur avec SELECT + fetch.
-    $reponse_new = $db->query('SELECT * FROM gym_workouts WHERE user_id = ' . $userId . ' ORDER BY id DESC');
-    $nouvelleSeance = $reponse_new->fetch();
-    $reponse_new->closeCursor();
-
-    if ($nouvelleSeance && $_POST['exercise_name'] != '') {
-        $requete = $db->prepare('INSERT INTO gym_exercises (workout_id, name, sets, reps, weight) VALUES (:workout_id, :name, :sets, :reps, :weight)');
-        $requete->execute(array(
-            'workout_id' => $nouvelleSeance['id'],
-            'name' => $_POST['exercise_name'],
-            'sets' => $_POST['sets'],
-            'reps' => $_POST['reps'],
-            'weight' => $_POST['weight']
-        ));
-    }
-
-    header('Location: gym.php');
-    exit();
-}
-
-// Suppression (DELETE avec requete preparee)
-if (isset($_GET['supprimer'])) {
-    $requete = $db->prepare('DELETE FROM gym_workouts WHERE id = :id AND user_id = :user_id');
-    $requete->execute(array('id' => $_GET['supprimer'], 'user_id' => $userId));
-    header('Location: gym.php');
-    exit();
-}
+// gym.php - Page Musculation simplifiée
+require_once 'db_config.php';
 
 // Lecture des donnees (SELECT + while + fetch)
-$reponse = $db->query('SELECT * FROM gym_workouts WHERE user_id = ' . $userId . ' ORDER BY date DESC');
+$reponse = $db->query('SELECT * FROM gym_workouts ORDER BY date DESC');
 
 include 'header.php';
 ?>
@@ -83,9 +38,6 @@ include 'header.php';
                     <div class="meta-field">
                         <div class="field-label">Calories</div>
                         <div class="field-value"><?php echo $entree['calories']; ?> kcal</div>
-                    </div>
-                    <div class="meta-field">
-                        <a href="gym.php?supprimer=<?php echo $entree['id']; ?>" onclick="return confirm('Supprimer ?')" style="color:red;">Supprimer</a>
                     </div>
                 </div>
 
@@ -124,14 +76,14 @@ include 'header.php';
     </div>
 </main>
 
-<!-- Formulaire d'ajout -->
+<!-- Formulaire d'ajout (Visuel uniquement) -->
 <div id="modal-gym" class="modal-overlay" style="display:none;">
     <div class="modal">
         <div class="modal-header">
             <h3>Ajouter une seance</h3>
             <button class="modal-close" id="close-modal">&times;</button>
         </div>
-        <form method="POST" action="gym.php" class="modal-form">
+        <form class="modal-form">
             <div class="form-group">
                 <label>Date</label>
                 <input type="date" name="date" required>
@@ -167,7 +119,7 @@ include 'header.php';
                     <input type="number" name="reps" required>
                 </div>
             </div>
-            <button type="submit" name="btn_add_gym" class="modal-submit">Enregistrer</button>
+            <button type="button" class="modal-submit" onclick="alert('L\'ajout sera implémenté plus tard.')">Enregistrer</button>
         </form>
     </div>
 </div>
@@ -180,3 +132,4 @@ include 'header.php';
 <script src="script.js"></script>
 </body>
 </html>
+

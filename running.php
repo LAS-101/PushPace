@@ -1,39 +1,9 @@
 <?php
-// running.php - Page Course à pied
-require_once 'auth.php';
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-
-// Ajout d'une course (INSERT avec requête préparée)
-if (isset($_POST['btn_add_run'])) {
-    $requete = $db->prepare('INSERT INTO running_activities (user_id, date, duration, distance, pace, calories) VALUES (:user_id, :date, :duration, :distance, :pace, :calories)');
-    $requete->execute(array(
-        'user_id' => $userId,
-        'date' => $_POST['date'],
-        'duration' => $_POST['duration'],
-        'distance' => $_POST['distance'],
-        'pace' => $_POST['pace'],
-        'calories' => $_POST['calories']
-    ));
-    header('Location: running.php');
-    exit();
-}
-
-// Suppression (DELETE avec requête préparée)
-if (isset($_GET['supprimer'])) {
-    $requete = $db->prepare('DELETE FROM running_activities WHERE id = :id AND user_id = :user_id');
-    $requete->execute(array('id' => $_GET['supprimer'], 'user_id' => $userId));
-    header('Location: running.php');
-    exit();
-}
+// running.php - Page Course à pied simplifiée
+require_once 'db_config.php';
 
 // Lecture des données (SELECT + while + fetch)
-$reponse = $db->query('SELECT * FROM running_activities WHERE user_id = ' . $userId . ' ORDER BY date DESC');
+$reponse = $db->query('SELECT * FROM running_activities ORDER BY date DESC');
 
 include 'header.php';
 ?>
@@ -76,9 +46,6 @@ include 'header.php';
                     <div class="field-label">Calories</div>
                     <div class="field-value"><?php echo $entree['calories']; ?> kcal</div>
                 </div>
-                <div>
-                    <a href="running.php?supprimer=<?php echo $entree['id']; ?>" onclick="return confirm('Supprimer ?')" style="color:red;">Supprimer</a>
-                </div>
             </div>
         <?php
         }
@@ -91,14 +58,14 @@ include 'header.php';
     </div>
 </main>
 
-<!-- Formulaire d'ajout -->
+<!-- Formulaire d'ajout (Visuel uniquement) -->
 <div id="modal-run" class="modal-overlay" style="display:none;">
     <div class="modal">
         <div class="modal-header">
             <h3>Ajouter une course</h3>
             <button class="modal-close" id="close-modal">&times;</button>
         </div>
-        <form method="POST" action="running.php" class="modal-form">
+        <form class="modal-form">
             <div class="form-group">
                 <label>Date</label>
                 <input type="date" name="date" required>
@@ -123,7 +90,7 @@ include 'header.php';
                     <input type="number" name="calories" required>
                 </div>
             </div>
-            <button type="submit" name="btn_add_run" class="modal-submit">Enregistrer</button>
+            <button type="button" class="modal-submit" onclick="alert('L\'ajout sera implémenté plus tard.')">Enregistrer</button>
         </form>
     </div>
 </div>
@@ -136,3 +103,4 @@ include 'header.php';
 <script src="script.js"></script>
 </body>
 </html>
+

@@ -1,7 +1,5 @@
 <?php
-// header.php
-require_once 'auth.php';
-
+// header.php - En-tête simplifié
 $currentPage = basename($_SERVER['PHP_SELF'], ".php");
 ?>
 <!DOCTYPE html>
@@ -16,14 +14,14 @@ $currentPage = basename($_SERVER['PHP_SELF'], ".php");
 <body class="page-<?php echo $currentPage; ?>">
 
   <header>
-    <a class="logo" href="dashboard.php">
+    <a class="logo" href="index.php">
       <svg viewBox="0 0 28 28" fill="none">
         <polyline points="2,18 8,10 13,16 18,6 22,12 26,8" stroke="#00c8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
       PushPace
     </a>
     <div style="flex: 1;"></div>
-    <a href="logout.php" style="color: var(--muted); text-decoration: none; font-size: 0.85rem; margin-right: 20px;">Déconnexion</a>
+    <span style="color: var(--muted); font-size: 0.85rem;">Mode Connexion Simple</span>
   </header>
 
   <nav>
