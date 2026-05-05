@@ -1,4 +1,3 @@
-// API Base URL (adjust if needed based on your server setup)
 const API_BASE = '/PushPace/api';
 
 // Global logout function
