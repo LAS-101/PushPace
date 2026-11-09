@@ -1,0 +1,139 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+}
+
+.box {
+  background: var(--card);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+}
+
+.title {
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-family: var(--font-display);
+}
+
+.group {
+  margin-bottom: 20px;
+}
+
+.group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s;
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.group input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 5px rgba(0, 200, 255, 0.3);
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.primary {
+  background-color: var(--cyan);
+  color: var(--bg);
+}
+
+.primary:hover {
+  background-color: var(--cyan-dim);
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+}
+
+.secondary {
+  background-color: transparent;
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+}
+
+.secondary:hover {
+  background-color: rgba(0, 200, 255, 0.1);
+}
+
+.error,
+.success {
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  white-space: pre-line;
+}
+
+.error {
+  background-color: rgba(255, 107, 43, 0.1);
+  color: var(--orange);
+  border-left: 4px solid var(--orange);
+}
+
+.success {
+  background-color: rgba(0, 214, 143, 0.1);
+  color: var(--green);
+  border-left: 4px solid var(--green);
+}
+
+.toggleText {
+  text-align: center;
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--cyan);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

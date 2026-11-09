@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+backend/dist/
+frontend/.next/
+frontend/out/
+*.tsbuildinfo
+
+# Environment (copy the .env.example files instead)
+.env
+.env.*
+!.env.example
+
+# Misc
+coverage/
+*.log
+.DS_Store

@@ -1,0 +1,23 @@
+{
+  "name": "pushpace",
+  "private": true,
+  "description": "PushPace fitness tracker: NestJS API + Next.js web app",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently -n api,web -c cyan,green \"npm run start:dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "start": "concurrently -n api,web -c cyan,green \"npm run start:prod --prefix backend\" \"npm run start --prefix frontend\"",
+    "test": "npm test --prefix backend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "db:up": "node scripts/db.mjs up",
+    "db:down": "node scripts/db.mjs down",
+    "db:reset": "node scripts/db.mjs reset",
+    "db:logs": "node scripts/db.mjs logs"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
+}
