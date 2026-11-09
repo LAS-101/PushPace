@@ -1,0 +1,870 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0b0f1a;
+  --surface: #141926;
+  --card: #1a2133;
+  --border: rgba(255, 255, 255, 0.06);
+  --text: #e8ecf5;
+  --muted: #7a8499;
+  --cyan: #00c8ff;
+  --cyan-dim: #0096c7;
+  --green: #00d68f;
+  --orange: #ff6b2b;
+  --blue: #1e3a5f;
+
+  /* Set by next/font in app/layout.tsx */
+  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-display: var(--font-syne), "Syne", sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+}
+
+/* ── Header ─────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 40px;
+  height: 68px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo svg {
+  width: 28px;
+  height: 28px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--orange);
+  border-radius: 6px;
+  color: var(--orange);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background: var(--orange);
+  color: #000;
+}
+
+.btn-logout svg {
+  width: 18px;
+  height: 18px;
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 18px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.profile-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.profile-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.profile-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ── Nav ────────────────────────────────────── */
+nav {
+  display: flex;
+  justify-content: center;
+  padding: 24px 40px 0;
+}
+
+.nav-tabs {
+  display: flex;
+  background: var(--surface);
+  border-radius: 50px;
+  padding: 5px;
+  gap: 4px;
+  border: 1px solid var(--border);
+}
+
+.nav-tabs a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 24px;
+  border-radius: 50px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-tabs a:not(.active):hover {
+  color: var(--text);
+}
+
+.nav-tabs a svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-tabs a.active {
+  font-weight: 600;
+}
+
+.page-dashboard .nav-tabs a.active {
+  background: var(--text);
+  color: #000;
+}
+
+.page-walking .nav-tabs a.active {
+  background: var(--green);
+  color: #000;
+}
+
+.page-gym .nav-tabs a.active {
+  background: var(--orange);
+  color: #fff;
+}
+
+.page-running .nav-tabs a.active {
+  background: var(--cyan);
+  color: #000;
+}
+
+/* ── Page layout ────────────────────────────── */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 40px;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 40px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.page-header .page-sub {
+  margin-bottom: 0;
+}
+
+.page-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.page-title-row svg {
+  width: 36px;
+  height: 36px;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.empty-state {
+  color: var(--muted);
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* ── Buttons ────────────────────────────────── */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn-green {
+  background: var(--green);
+  color: #000;
+}
+
+.btn-cyan {
+  background: var(--cyan);
+  color: #000;
+}
+
+.btn-orange {
+  background: var(--orange);
+  color: #fff;
+}
+
+/* ── Dashboard ──────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.stat-card .label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.stat-card .label svg {
+  width: 18px;
+  height: 18px;
+}
+
+.stat-card .value {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-card .sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.act-card {
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid transparent;
+}
+
+.act-card.walking {
+  background: linear-gradient(145deg, #0a2e1e 0%, #061a12 100%);
+  border-color: rgba(0, 214, 143, 0.15);
+}
+
+.act-card.gym {
+  background: linear-gradient(145deg, #2e1608 0%, #1a0c04 100%);
+  border-color: rgba(255, 107, 43, 0.15);
+}
+
+.act-card.running {
+  background: linear-gradient(145deg, #0a1e35 0%, #061020 100%);
+  border-color: rgba(0, 200, 255, 0.15);
+}
+
+.act-card .act-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.act-card .act-title svg {
+  width: 22px;
+  height: 22px;
+}
+
+.act-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.act-row .lbl {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.act-row .val {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ── Walking / Running lists ────────────────── */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 28px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+
+.page-walking .activity-row:hover {
+  border-color: rgba(0, 214, 143, 0.25);
+}
+
+.page-running .activity-row:hover {
+  border-color: rgba(0, 200, 255, 0.25);
+}
+
+.field-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.field-label svg {
+  width: 13px;
+  height: 13px;
+}
+
+.field-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* ── Gym list ───────────────────────────────── */
+.workout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.workout-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  transition: border-color 0.2s;
+}
+
+.workout-card:hover {
+  border-color: rgba(255, 107, 43, 0.25);
+}
+
+.workout-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin-bottom: 20px;
+}
+
+.meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.exercises-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.exercises-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.exercise-card {
+  background: #2a1508;
+  border: 1px solid rgba(255, 107, 43, 0.12);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.exercise-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.exercise-detail-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.ex-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.ex-sets {
+  background: rgba(255, 107, 43, 0.15);
+  color: var(--orange);
+}
+
+.ex-reps {
+  background: rgba(0, 200, 255, 0.12);
+  color: var(--cyan);
+}
+
+.ex-weight {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+}
+
+/* ── Entrance animation ─────────────────────── */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.enter {
+  animation: enter 0.5s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    animation: none;
+  }
+}
+
+/* ── Modal ──────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+
+.modal-gym {
+  max-width: 640px;
+}
+
+.modal-overlay.active .modal {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.modal-subtitle {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: -8px 0 20px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--text);
+}
+
+.modal-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Forms ──────────────────────────────────── */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: rgba(0, 200, 255, 0.4);
+}
+
+.form-group input.readonly {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-group select option {
+  background: var(--card);
+  color: var(--text);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-submit {
+  background: var(--cyan);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+.modal-submit:hover {
+  opacity: 0.85;
+}
+
+.modal-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ── Gym exercise form ──────────────────────── */
+.exercises-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exercises-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exercises-form-title {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.add-exercise-btn {
+  background: none;
+  border: 1px solid rgba(255, 107, 43, 0.4);
+  color: var(--orange);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-exercise-btn:hover {
+  background: rgba(255, 107, 43, 0.1);
+}
+
+.exercise-rows-header,
+.exercise-input-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 28px;
+  gap: 8px;
+}
+
+.exercise-rows-header {
+  padding: 0 4px;
+}
+
+.exercise-rows-header span {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.exercise-input-row {
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.exercise-input-row input {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  transition: border-color 0.2s;
+}
+
+.exercise-input-row input:focus {
+  border-color: rgba(255, 107, 43, 0.4);
+}
+
+.remove-ex-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.remove-ex-btn:hover {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.remove-ex-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ── Small screens ──────────────────────────── */
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .activity-grid,
+  .exercises-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-row {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  header,
+  nav,
+  main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  main {
+    padding-top: 32px;
+  }
+
+  .nav-tabs a {
+    padding: 10px 12px;
+  }
+
+  .nav-tabs a svg {
+    display: none;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .stats-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .profile-btn,
+  .btn-logout {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .btn-label {
+    display: none;
+  }
+
+  .profile-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
